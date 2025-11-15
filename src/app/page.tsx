@@ -2,11 +2,37 @@
 
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState } from 'react'
 import { SparklesIcon, UserIcon } from '@heroicons/react/24/solid'
 import FeatureCard from '@/components/FeatureCard'
 
 export default function Onboarding(): JSX.Element {
   const router = useRouter()
+   const supabase = createClient()
+  const [checkingSession, setCheckingSession] = useState(false)
+
+  // ✅ Function to handle route intelligently
+  async function handleRoute() {
+    setCheckingSession(true)
+    try {
+      const { data } = await supabase.auth.getSession()
+
+      if (data.session) {
+        // User is logged in → go to dashboard
+        router.push('/dashboard')
+      } else {
+        // No session → go to sign-in
+        router.push('/sign-in')
+      }
+    } catch (err) {
+      console.error('Error checking session:', err)
+      router.push('/sign-in')
+    } finally {
+      setCheckingSession(false)
+    }
+  }
+
 
   return (
     <main className="min-h-screen flex flex-col bg-[linear-gradient(135deg,#EFF6FF_0%,#F5F3FF_35%,#DBEAFE_70%)] text-gray-800 overflow-hidden">
@@ -30,7 +56,7 @@ export default function Onboarding(): JSX.Element {
       </header>
 
       {/* ===== MAIN GRID ===== */}
-      <section className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center px-6 md:px-16">
+      <section className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-3 items-center px-6 md:px-16">
         {/* LEFT TEXT SECTION */}
         <div className="flex flex-col justify-center space-y-5">
           <h2
@@ -117,18 +143,20 @@ export default function Onboarding(): JSX.Element {
       {/* ===== BUTTON SECTION ===== */}
       <div className="flex flex-col items-center justify-center gap-2 mt-8 mb-8">
         <button
-          onClick={() => router.push('/sign-in?mode=signup')}
-          className="w-60 py-2.5 bg-gradient-to-r from-[#6E5BFF] to-[#4FC3F7] text-white font-medium rounded-xl shadow-md hover:opacity-90 transition text-[15px]"
+          onClick={handleRoute}
+          disabled={checkingSession}
+          className="w-60 py-2.5 bg-gradient-to-r from-[#6E5BFF] to-[#4FC3F7] text-white font-medium rounded-xl shadow-md hover:opacity-90 transition text-[15px] cursor-pointer"
         >
-          Get Started
+          {checkingSession ? 'Checking...' : 'Get Started'}
         </button>
 
         <button
-          onClick={() => router.push('/sign-in')}
-          className="w-60 py-2.5 border border-gray-400 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition flex items-center justify-center gap-2 text-[15px]"
+          onClick={handleRoute}
+          disabled={checkingSession}
+          className="w-60 py-2.5 border border-gray-400 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition flex items-center justify-center gap-2 text-[15px] cursor-pointer"
         >
           <UserIcon className="h-5 w-5 text-gray-500" />
-          Sign In
+          {checkingSession ? 'Checking...' : 'Sign In'}
         </button>
 
         <p className="text-xs text-gray-500 mt-2">
