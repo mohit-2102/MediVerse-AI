@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createBrowserSupabaseClient } from '@/lib/supabase/client'
 import { Bell, Search } from 'lucide-react'
 
 export default function DashboardHeader() {
-  const supabase = createClient()
+  const supabase = createBrowserSupabaseClient()
   const [userName, setUserName] = useState<string>('')
 
   useEffect(() => {

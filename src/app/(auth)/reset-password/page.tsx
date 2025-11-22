@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createBrowserSupabaseClient } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 import { FaEyeSlash, FaEye } from 'react-icons/fa'
 
 export default function ResetPasswordPage() {
-  const supabase = createClient()
+  const supabase = createBrowserSupabaseClient()
   const router = useRouter()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')

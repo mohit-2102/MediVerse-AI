@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 // import { Checkbox } from '@/components/ui/checkbox'
 import { FaGoogle, FaArrowRight, FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa'
-import { createClient } from '@/lib/supabase/client'
+import { createBrowserSupabaseClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 
 interface LoginFormProps {
@@ -18,7 +18,7 @@ export default function LoginForm({ onAuth, onGoogleAuth }: LoginFormProps) {
     const [loading, setLoading] = useState(false)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const supabase = createClient()
+    const supabase = createBrowserSupabaseClient()
 
     // ✅ Forgot Password
     async function handleForgotPassword() {

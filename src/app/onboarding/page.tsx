@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { useProfileStore } from '@/store/profileStore'
 import {
   ChevronDown,
   ChevronLeft,
@@ -25,14 +26,14 @@ import {
   Contact,
 } from 'lucide-react'
 import { FaArrowRight } from 'react-icons/fa'
-import { createClient } from '@/lib/supabase/client'
+import { createBrowserSupabaseClient } from '@/lib/supabase/client'
 import { useOnboardingStore } from '@/store/onboardingStore'
 import { onboardingService } from '@/services/onboardingService'
 import type { OnboardingFormData } from '@/types/onboarding'
 
 export default function OnboardingPage(): JSX.Element {
   const router = useRouter()
-  const supabase = createClient()
+  const supabase = createBrowserSupabaseClient()
   const updateField = useOnboardingStore((s) => s.updateField)
   const reset = useOnboardingStore((s) => s.reset)
 
@@ -179,25 +180,41 @@ export default function OnboardingPage(): JSX.Element {
 
   // ✅ Handle Submit
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setMessage(null)
-    try {
-      // ✅ Get latest formData from Zustand store here
-      const formData = useOnboardingStore.getState().formData
+  e.preventDefault()
+  setLoading(true)
+  setMessage(null)
 
-      console.log(formData)
+  try {
+    const formData = useOnboardingStore.getState().formData
+    console.log('Form Data:', formData)
 
-      await onboardingService.submitHealthProfile(formData)
-      setMessage('✅ Profile saved successfully!')
+
+    const res = await onboardingService.submitHealthProfile(formData)
+
+    if (res.success) {
+      // Clear onboarding fields
+      useOnboardingStore.getState().reset()
+
+      // Fetch fresh full profile from backend
+      const freshProfile = await onboardingService.getProfile()
+
+      // Save profile globally
+      useProfileStore.getState().setProfile(freshProfile)
+
+      setMessage('Profile saved successfully!')
+
       router.push('/dashboard')
-    } catch (err: any) {
-      console.error('❌ Submission error:', err.message)
-      setMessage('❌ Failed to save profile. Please try again.')
-    } finally {
-      setLoading(false)
+    } else {
+      setMessage(res.message || 'Something went wrong.')
     }
+  } catch (err: any) {
+    console.error('❌ Submission error:', err.message)
+    setMessage('Failed to save profile. Please try again.')
+  } finally {
+    setLoading(false)
   }
+}
+
 
   const MotionMain = motion.main
 
@@ -374,7 +391,7 @@ export default function OnboardingPage(): JSX.Element {
   `}
             >
               <svg width="16" height="16" viewBox="0 0 16 16" className="mr-2" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <g clip-path="url(#clip0_1_186)">
+                <g clipPath="url(#clip0_1_186)">
                   <path d="M8 0C10.1217 0 12.1566 0.842855 13.6569 2.34315C15.1571 3.84344 16 5.87827 16 8C16 10.1217 15.1571 12.1566 13.6569 13.6569C12.1566 15.1571 10.1217 16 8 16C5.87827 16 3.84344 15.1571 2.34315 13.6569C0.842855 12.1566 0 10.1217 0 8C0 5.87827 0.842855 3.84344 2.34315 2.34315C3.84344 0.842855 5.87827 0 8 0ZM7.25 3.75V8C7.25 8.25 7.375 8.48438 7.58437 8.625L10.5844 10.625C10.9281 10.8562 11.3938 10.7625 11.625 10.4156C11.8562 10.0687 11.7625 9.60625 11.4156 9.375L8.75 7.6V3.75C8.75 3.33437 8.41562 3 8 3C7.58437 3 7.25 3.33437 7.25 3.75Z" fill="#374151" />
                 </g>
                 <defs>

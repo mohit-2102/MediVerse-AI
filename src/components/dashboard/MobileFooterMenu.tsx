@@ -1,24 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { usePathname, useRouter } from 'next/navigation'
 import { createBrowserSupabaseClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { LogOut } from 'lucide-react'
 
-export default function Sidebar({ onWidthChange }: { onWidthChange?: (expanded: boolean) => void }) {
-    const [expanded, setExpanded] = useState(false)
-    const router = useRouter()
+export default function MobileFooterMenu() {
     const pathname = usePathname()
+    const router = useRouter()
     const supabase = createBrowserSupabaseClient()
 
-    // notify parent
-    useEffect(() => {
-        if (onWidthChange) onWidthChange(expanded)
-    }, [expanded, onWidthChange])
-
-    // ---------- ICONS ----------
     const navItems = [
         {
             label: 'Dashboard',
@@ -119,88 +110,45 @@ export default function Sidebar({ onWidthChange }: { onWidthChange?: (expanded: 
         },
     ]
 
-    // ---------- LOGOUT ----------
     const handleLogout = async () => {
         await supabase.auth.signOut()
         toast.success('Logged out successfully!')
         router.push('/sign-in')
     }
 
-    // ---------- UI ----------
     return (
-        <motion.aside
-            layout
-            initial={{ width: 80 }}
-            animate={{ width: expanded ? 200 : 80 }}
-            transition={{ type: 'spring', stiffness: 140, damping: 18 }}
-            onMouseEnter={() => setExpanded(true)}
-            onMouseLeave={() => setExpanded(false)}
-            className="fixed top-0 left-0 h-screen bg-white/90 backdrop-blur-md
-                 border-r border-gray-200 shadow-2xl flex flex-col items-center z-50"
-        >
+        <nav className="
+      fixed bottom-0 left-0 w-full h-16 bg-white border-t border-gray-200 
+      flex justify-around items-center z-50
+      md:hidden
+    ">
+            {navItems.map((item) => {
+                const active = pathname === item.path
 
-            {/* -------- LOGO -------- */}
-            <div className="mt-6 mb-10">
-                <motion.div
-                    animate={{ rotate: expanded ? 360 : 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="p-3 rounded-2xl bg-gradient-to-br from-[#3B82F6] to-[#9333EA] shadow-lg"
-
-                >
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M7.1875 0C8.39453 0 9.375 0.980469 9.375 2.1875V17.8125C9.375 19.0195 8.39453 20 7.1875 20C6.05859 20 5.12891 19.1445 5.01172 18.043C4.80859 18.0977 4.59375 18.125 4.375 18.125C2.99609 18.125 1.875 17.0039 1.875 15.625C1.875 15.3359 1.92578 15.0547 2.01562 14.7969C0.835937 14.3516 0 13.2109 0 11.875C0 10.6289 0.730469 9.55078 1.78906 9.05078C1.44922 8.625 1.25 8.08594 1.25 7.5C1.25 6.30078 2.09375 5.30078 3.21875 5.05469C3.15625 4.83984 3.125 4.60938 3.125 4.375C3.125 3.20703 3.92969 2.22266 5.01172 1.94922C5.12891 0.855469 6.05859 0 7.1875 0ZM12.8125 0C13.9414 0 14.8672 0.855469 14.9883 1.94922C16.0742 2.22266 16.875 3.20312 16.875 4.375C16.875 4.60938 16.8438 4.83984 16.7812 5.05469C17.9062 5.29687 18.75 6.30078 18.75 7.5C18.75 8.08594 18.5508 8.625 18.2109 9.05078C19.2695 9.55078 20 10.6289 20 11.875C20 13.2109 19.1641 14.3516 17.9844 14.7969C18.0742 15.0547 18.125 15.3359 18.125 15.625C18.125 17.0039 17.0039 18.125 15.625 18.125C15.4062 18.125 15.1914 18.0977 14.9883 18.043C14.8711 19.1445 13.9414 20 12.8125 20C11.6055 20 10.625 19.0195 10.625 17.8125V2.1875C10.625 0.980469 11.6055 0 12.8125 0Z"
-                            fill="white"
-                        />
-                    </svg>
-                </motion.div>
-            </div>
-
-            {/* -------- NAVIGATION -------- */}
-            <motion.nav layout className="flex-1 flex flex-col items-center space-y-6 w-full">
-
-                {navItems.map((item) => {
-                    const isActive = pathname === item.path
-
-                    // Determine background style
-                    const buttonStyle = isActive
-                        ? "bg-gradient-to-br from-[#3B82F6] to-[#2563EB] text-white shadow-md"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-
-                    return (
-                        <motion.button
-                            key={item.label}
-                            whileHover={{ scale: 1.07 }}
-                            onClick={() => router.push(item.path)}
-                            className={`
-                flex items-center rounded-[16px] h-[48px] transition-all duration-200
-                ${expanded ? "justify-start pl-5 gap-3 w-[160px]" : "justify-center w-[48px]"}
-                ${buttonStyle}
-              `}
-                        >
+                return (
+                    <button
+                        key={item.path}
+                        onClick={() => router.push(item.path)}
+                        className="flex flex-col items-center justify-center group"
+                    >
+                        <span className={`${active ? "text-blue-600" : "text-gray-500"} group-hover:text-blue-500`}>
                             {item.icon}
-                            {expanded && <span className="text-sm font-medium">{item.label}</span>}
-                        </motion.button>
-                    )
-                })}
+                        </span>
+                        <span className={`text-[10px] mt-1 ${active ? "text-blue-600 font-medium" : "text-gray-500"}`}>
+                            {item.label}
+                        </span>
+                    </button>
+                )
+            })}
 
-            </motion.nav>
-
-            {/* -------- LOGOUT -------- */}
-            <motion.button
-                whileHover={{ scale: 1.07 }}
+            {/* Logout Icon */}
+            <button
                 onClick={handleLogout}
-                className={`
-          flex items-center text-red-500 rounded-[16px] h-[48px] mb-6 hover:bg-red-50
-          ${expanded ? "justify-start pl-5 gap-3 w-[160px]" : "justify-center w-[48px]"}
-        `}
+                className="flex flex-col items-center justify-center text-red-500 hover:text-red-600"
             >
                 <LogOut size={20} />
-                {expanded && <span className="text-sm font-medium">Logout</span>}
-            </motion.button>
-
-        </motion.aside>
+                <span className="text-[10px] mt-1">Logout</span>
+            </button>
+        </nav>
     )
 }
-
-

@@ -10,17 +10,18 @@ class OnboardingService {
   /**
    * 🧾 Save the complete health profile in one go
    */
-  async submitHealthProfile(data: Record<string, any>): Promise<ApiResponse<null>> {
-    // Send the entire form data to backend
-    return apiClient.post<ApiResponse<null>>('/profiles/onboarding/complete', data)
+  
+  async submitHealthProfile(data: Record<string, any>) {
+    return apiClient.post<{ patient_id: string, onboarding_completed: boolean }>(
+      "/profiles/onboarding/complete",
+      data
+    )
+  }
+  async getProfile() {
+    return apiClient.get("/profiles/me")
   }
 
-  /**
-   * 👤 Fetch user’s existing profile (for prefill)
-   */
-  async getProfile(): Promise<Record<string, any>> {
-    return apiClient.get<Record<string, any>>('/profiles/me')
-  }
+
 
   /**
    * 📄 Upload health documents or reports (optional future use)

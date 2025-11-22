@@ -1,8 +1,11 @@
-import { NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+import { createServerClient } from "@supabase/ssr"
 
 export async function GET(request: NextRequest) {
+  const requestUrl = new URL(request.url)
+  const code = requestUrl.searchParams.get("code")
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -11,32 +14,36 @@ export async function GET(request: NextRequest) {
         get(name: string) {
           return request.cookies.get(name)?.value
         },
+        set(name: string, value: string, options: any) {
+          request.cookies.set(name, value, options)
+        },
       },
     }
   )
 
+  // 🔥 THIS IS THE MISSING PART
+  if (code) {
+    await supabase.auth.exchangeCodeForSession(code)
+  }
+
+  // Now session should exist
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.redirect(new URL('/sign-in', request.url))
+    return NextResponse.redirect(new URL("/sign-in", request.url))
   }
 
+  // Check profile existence
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('created_at')
-    .eq('id', user.id)
+    .from("profiles")
+    .select("created_at")
+    .eq("id", user.id)
     .maybeSingle()
 
-  let redirectTo = '/dashboard'
-
-  // ✅ If profile exists but was just created (new user), send to onboarding
-  if (!profile) {
-    redirectTo = '/onboarding'
-  }
-
-  return NextResponse.redirect(new URL(redirectTo, request.url))
+  return NextResponse.redirect(
+    new URL(profile ? "/dashboard" : "/onboarding", request.url)
+  )
 }
-
 
 
 // import { NextResponse } from 'next/server'

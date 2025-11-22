@@ -1,7 +1,7 @@
 'use client'
 
 import { create } from 'zustand'
-import { createClient } from '@/lib/supabase/client'
+import { createBrowserSupabaseClient } from '@/lib/supabase/client'
 
 interface AuthUser {
   id: string
@@ -23,7 +23,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   // Fetch the Supabase user session
   fetchUser: async () => {
-    const supabase = createClient()
+    const supabase = createBrowserSupabaseClient()
     const { data, error } = await supabase.auth.getUser()
     if (error) {
       console.error('❌ Failed to fetch user:', error.message)
@@ -47,7 +47,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   // Logout and clear session
   logout: async () => {
-    const supabase = createClient()
+    const supabase = createBrowserSupabaseClient()
     await supabase.auth.signOut()
     set({ user: null })
   },

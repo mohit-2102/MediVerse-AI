@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createBrowserSupabaseClient } from '@/lib/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 // Create a React context for Supabase
@@ -14,7 +14,7 @@ const SupabaseContext = createContext<SupabaseContextType | undefined>(undefined
 // Main provider component
 export default function SupabaseProvider({ children }: { children: React.ReactNode }) {
   // Create a single client instance for the entire app
-  const [supabase] = useState(() => createClient())
+  const [supabase] = useState(() => createBrowserSupabaseClient())
 
   return (
     <SupabaseContext.Provider value={{ supabase }}>

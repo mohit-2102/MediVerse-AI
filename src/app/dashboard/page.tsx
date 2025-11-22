@@ -3,23 +3,33 @@
 import { useState } from 'react'
 import Sidebar from '@/components/dashboard/Sidebar'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
+import MobileFooterMenu from '@/components/dashboard/MobileFooterMenu'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ClipboardCheck, FileText, Calendar, FlaskConical, Heart, Pill, ChevronRight } from 'lucide-react'
+import { ClipboardCheck, FileText, Calendar, FlaskConical, Heart, Pill, ChevronRight, Router } from 'lucide-react'
 
 export default function DashboardPage() {
     const [expanded, setExpanded] = useState(false)
+    const router = useRouter()
+
+    const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768
 
     return (
         <div className="flex min-h-screen bg-gradient-to-br from-[#EFF6FF] via-[#F5F3FF] to-[#DBEAFE]">
-            {/* Sidebar */}
-            <Sidebar onWidthChange={setExpanded} />
 
-            {/* Main Content */}
+            {/* === Desktop Sidebar === */}
+            <div className="hidden md:block">
+                <Sidebar onWidthChange={setExpanded} />
+            </div>
+
+            {/* === Main Content === */}
             <motion.div
                 layout
-                animate={{ marginLeft: expanded ? 200 : 64 }}
+                animate={{
+                    marginLeft: isDesktop ? (expanded ? 200 : 64) : 0,  // FIXED
+                }}
                 transition={{ type: 'spring', stiffness: 200, damping: 25 }}
-                className="flex-1"
+                className="flex-1 pb-20 md:pb-0"  // spacing for mobile footer
             >
                 <DashboardHeader />
 
@@ -37,7 +47,6 @@ export default function DashboardPage() {
                         <motion.div
                             whileHover={{ scale: 1.02 }}
                             className="bg-white rounded-2xl p-6 shadow-2xl cursor-pointer"
-                            onClick={() => alert('Navigate to /diagnosis')}
                         >
                             <div className="bg-gradient-to-br from-[#3B82F6] to-[#9333EA] rounded-xl p-8 flex items-center justify-center mb-4">
                                 <svg width="60" height="53" viewBox="0 0 60 53" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -49,7 +58,7 @@ export default function DashboardPage() {
                             <p className="text-sm text-gray-600 mb-4">
                                 Upload scans to detect conditions instantly using our advanced AI technology
                             </p>
-                            <span className="text-sm font-medium text-blue-600">Get started →</span>
+                            <button onClick={()=> router.push("/analysis")} className="text-sm font-medium text-blue-600">Get started →</button>
                         </motion.div>
 
                         <motion.div
@@ -170,10 +179,14 @@ export default function DashboardPage() {
                     </div>
                 </section>
             </motion.div>
+
+            {/* === FIXED Mobile Footer Menu === */}
+            <div className="md:hidden fixed bottom-0 left-0 w-full z-50">
+                <MobileFooterMenu />
+            </div>
         </div>
     )
 }
-
 
 // 'use client'
 

@@ -3,14 +3,14 @@
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { createClient } from '@/lib/supabase/client'
+import { createBrowserSupabaseClient } from '@/lib/supabase/client'
 import LoginForm from '@/components/LoginForm'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
 export default function AuthPage() {
   const router = useRouter()
-  const supabase = createClient()
+  const supabase = createBrowserSupabaseClient()
   const [loading, setLoading] = useState(false)
 
   // Handles both login and signup actions

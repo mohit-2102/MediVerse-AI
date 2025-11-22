@@ -2,14 +2,14 @@
 
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { createBrowserSupabaseClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
 import { SparklesIcon, UserIcon } from '@heroicons/react/24/solid'
 import FeatureCard from '@/components/FeatureCard'
 
 export default function Onboarding(): JSX.Element {
   const router = useRouter()
-   const supabase = createClient()
+   const supabase = createBrowserSupabaseClient()
   const [checkingSession, setCheckingSession] = useState(false)
 
   // ✅ Function to handle route intelligently
