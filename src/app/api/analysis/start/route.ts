@@ -18,6 +18,27 @@ export async function POST(req: NextRequest) {
 
     const imageUrl = body?.image_url ?? ""
 
+    // Try forwarding to a local U-Net backend if available. Configure via
+    // env var ANALYSIS_BACKEND_URL or default to localhost:8050
+    const backendUrl = process.env.ANALYSIS_BACKEND_URL ?? "http://localhost:8050/api/uploadfile"
+    try {
+      const res = await fetch(backendUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+
+      if (res.ok) {
+        const json = await res.json()
+        console.log(`➡️ Forwarded to analysis backend (${backendUrl}) — status=${res.status}`)
+        return NextResponse.json(json, { status: res.status })
+      }
+
+      console.warn(`⚠️ Analysis backend responded with status=${res.status}, falling back to mock.`)
+    } catch (forwardErr) {
+      console.warn("⚠️ Could not reach analysis backend, using mock response:", forwardErr)
+    }
+
     // mock segmentation image
     const segmentation = "/images/mock-segmentation.png"
 
